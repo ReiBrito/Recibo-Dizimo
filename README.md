@@ -37,8 +37,7 @@ Com ele, é possível criar um recibo personalizado, gerar um código de autenti
 
 ## 📂 Estrutura do Projeto
 
-├── index.html # Estrutura completa do sistema
-├── assets/ # Pasta para armazenar imagens e prints do sistema
+index.html # Estrutura completa do sistema em um único arquivo html
 
 yaml
 Copiar
