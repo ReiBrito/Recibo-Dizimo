@@ -37,7 +37,7 @@ Com ele, é possível criar um recibo personalizado, gerar um código de autenti
 
 ## 📂 Estrutura do Projeto
 
-# Estrutura completa do sistema em um único arquivo html
+Estrutura completa do sistema em um único arquivo html
 ```index.html``` 
 
 ---
