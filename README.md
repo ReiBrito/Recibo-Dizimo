@@ -64,18 +64,11 @@ open index.html    # Mac
 xdg-open index.html # Linux
 Preencha os campos e clique em Gerar Recibo.
 
-🌐 Deploy no GitHub Pages
-Suba seu repositório para o GitHub.
-
-Vá em Configurações > Pages.
-
-Em Source, selecione a branch main (ou master) e a pasta /root.
-
-O GitHub Pages vai gerar um link no formato:
+## 🌐 Demonstração
 
 👉 https://ReiBrito.github.io/Recibo-Dizimo/
 
-🖼️ Demonstração
+🖼️ Telas
 
 * TELA INICIAL
   
@@ -86,9 +79,7 @@ O GitHub Pages vai gerar um link no formato:
 ![Tela](recibo.png)
 
 
-📌 Melhorias Futuras
-
-📤 Exportar recibo em PDF além de PNG
+## 📌 Melhorias Futuras
 
 🎨 Opções de personalização (cores, logotipo da igreja, assinatura digital)
 
@@ -96,7 +87,7 @@ O GitHub Pages vai gerar um link no formato:
 
 📱 Versão mobile aprimorada com instalação como PWA
 
-👨‍💻 Autor
+## 👨‍💻 Autor
 Desenvolvido por Reinaldo Brito 💙
 
 Sinta-se livre para contribuir ou adaptar ao seu uso!
