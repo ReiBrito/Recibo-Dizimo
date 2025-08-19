@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recibo de Dízimo</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #e1bee7);
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    form {
+      background: #fff;
+      padding: 30px;
+      max-width: 500px;
+      width: 100%;
+      margin: auto;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      text-align: center;
+      animation: fadeIn 0.8s ease;
+    }
+
+    form h2 {
+      margin-bottom: 20px;
+      color: #4a148c;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    input, select, textarea, button {
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 12px;
+      font-size: 15px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      transition: all 0.3s ease;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #7b1fa2;
+      outline: none;
+      box-shadow: 0 0 6px rgba(123, 31, 162, 0.4);
+    }
+
+    button {
+      background: linear-gradient(90deg, #7b1fa2, #4a148c);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(90deg, #4a148c, #7b1fa2);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+      max-width: 350px;
+      width: 100%;
+      position: relative;
+      animation: slideUp 0.6s ease;
+    }
+
+    #recibo {
+      background: #fafafa;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 15px;
+      font-size: 14px;
+    }
+
+    #recibo .header {
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    #recibo .header h3 {
+      margin: 8px 0;
+      color: #4a148c;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    #recibo .center {
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    .top-buttons {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .top-buttons button {
+      padding: 10px;
+      background: #7b1fa2;
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 16px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .top-buttons button:hover {
+      background: #4a148c;
+      transform: scale(1.1);
+    }
+
+    .logo {
+      max-width: 60px;
+      margin: auto;
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(40px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <form id="formRecibo">
+    <img id="reciboLogo" src="https://ultimato.com.br/sites/amorese/files/2019/11/sistema_paroquias.png" class="logo" />
+    <h2>📜 Gerar Recibo de Dízimo</h2>
+    <input type="text" id="nome" placeholder="Nome do Dizimista" required>
+    <input type="number" id="valor" placeholder="Valor (R$)" required step="0.01">
+    <input type="date" id="data" required>
+    <textarea id="descricao" placeholder="Descrição ou observações (opcional)" rows="3"></textarea>
+    <input type="url" id="logoUrl" value="https://ultimato.com.br/sites/amorese/files/2019/11/sistema_paroquias.png" hidden>
+    <button type="submit"><i class="fas fa-receipt"></i> Gerar Recibo</button>
+  </form>
+
+  <div class="modal" id="modalRecibo">
+    <div class="modal-content">
+      <div class="top-buttons">
+        <button id="btnPrint" title="Imprimir"><i class="fas fa-print"></i></button>
+        <button id="btnDownload" title="Baixar"><i class="fas fa-download"></i></button>
+        <button id="btnShare" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
+        <button onclick="compartilharImagemApp()" title="Compartilhar imagem"><i class="fa-solid fa-paper-plane"></i></button>
+        <button id="btnClose" title="Fechar"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div id="recibo">
+        <div class="header">
+          <!--img id="reciboLogo" src="https://ultimato.com.br/sites/amorese/files/2019/11/sistema_paroquias.png" class="logo" /-->
+          <div class="info">
+            <h3>Igreja Esperança Viva</h3>
+            <small>CNPJ: 00.000.000/0001-00</small><br>
+            <small>Rua Exemplo, 123 - Centro - Cidade/UF</small>
+          </div>
+        </div>
+        
+        <p><strong>Nome:</strong> <span id="rNome"></span></p>
+        <p><strong>Valor:</strong> R$ <span id="rValor"></span></p>
+        <p><strong>Data:</strong> <span id="rData"></span></p>
+        <p><strong>Descrição:</strong> <span id="rDesc"></span></p>
+
+        <div class="center">
+          <div id="qrcode"></div><br>
+          <small><strong>Código:</strong> <span id="authCode"></span></small><br>
+          <div class="center section">
+            <small>“Trazei todos os dízimos à casa do tesouro.”</small><br>
+            <small><em>Malaquias - 3:10</em></small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.onload = () => {
+      document.getElementById("modalRecibo").style.display = "none";
+    }
+
+    const form = document.getElementById("formRecibo");
+    const modal = document.getElementById("modalRecibo");
+    const spanNome = document.getElementById("rNome");
+    const spanValor = document.getElementById("rValor");
+    const spanData = document.getElementById("rData");
+    const spanDesc = document.getElementById("rDesc");
+    const spanAuth = document.getElementById("authCode");
+    const qrCodeEl = document.getElementById("qrcode");
+    const reciboLogo = document.getElementById("reciboLogo");
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const nome = document.getElementById("nome").value;
+      const valor = parseFloat(document.getElementById("valor").value).toFixed(2);
+      const data = document.getElementById("data").value;
+      const desc = document.getElementById("descricao").value;
+      const logoUrl = document.getElementById("logoUrl").value;
+      const codigo = "DIZ" + Math.floor(100000 + Math.random() * 900000);
+
+      spanNome.textContent = nome;
+      spanValor.textContent = valor;
+      spanData.textContent = new Date(data).toLocaleDateString('pt-BR');
+      spanDesc.textContent = desc || "-";
+      spanAuth.textContent = codigo;
+
+      reciboLogo.src = logoUrl;
+
+      qrCodeEl.innerHTML = "";
+      new QRCode(qrCodeEl, {
+        text: `https://suaigreja.org/verificar?codigo=${codigo}`,
+        width: 100,
+        height: 100
+      });
+
+      modal.style.display = "flex";
+    });
+
+    document.getElementById("btnClose").onclick = () => modal.style.display = "none";
+
+    document.getElementById("btnPrint").onclick = () => {
+      const printContents = document.getElementById("recibo").outerHTML;
+      const win = window.open('', '', 'width=800,height=600');
+      win.document.write('<html><head><title>Imprimir Recibo</title></head><body>' + printContents + '</body></html>');
+      win.document.close();
+      win.print();
+    };
+
+    document.getElementById("btnDownload").onclick = () => {
+      html2canvas(document.getElementById("recibo")).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "recibo.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+    };
+
+    document.getElementById("btnShare").onclick = () => {
+      html2canvas(document.getElementById("recibo")).then(canvas => {
+        canvas.toBlob(blob => {
+          const file = new File([blob], "recibo.png", { type: "image/png" });
+          const url = `https://api.whatsapp.com/send?text=Recibo%20de%20Dízimo%20gerado.%20Veja%20em%20anexo.`;
+          window.open(url, "_blank");
+        });
+      });
+    };
+
+    function compartilharImagemApp() {
+      html2canvas(document.getElementById("recibo")).then(canvas => {
+        canvas.toBlob(async blob => {
+          const file = new File([blob], "recibo.jpg", { type: "image/jpeg" });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                files: [file],
+                title: 'Recibo de Dízimo',
+                text: 'Segue o comprovante de dízimo.'
+              });
+            } catch (err) {
+              alert("Compartilhamento cancelado ou não suportado.");
+            }
+          } else {
+            alert("Compartilhar imagem só funciona em alguns celulares. Tente baixar a imagem e enviar manualmente.");
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>
